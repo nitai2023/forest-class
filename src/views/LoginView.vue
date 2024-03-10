@@ -1,54 +1,104 @@
-<template>
-  <div class="login">
-  <el-radio-group v-model="userType" size="large">
-    <el-radio-button  label="学生" value="student">学生</el-radio-button>
-    <el-radio-button  label="老师" value="teacher">老师</el-radio-button>
-    <el-radio-button  label="管理员" value="admin">管理员</el-radio-button>
-  </el-radio-group>
-  <div style="margin: 20px" />
-  <el-form
-    label-width="auto"
-    :model="formLabelAlign"
-    style="max-width: 600px"
-    class="form"
-  >
-    <el-form-item label="名字">
-      <el-input v-model="formLabelAlign.name" />
-    </el-form-item>
-    <el-form-item label="密码">
-      <el-input v-model="formLabelAlign.region" />
-    </el-form-item>
-    <el-from-item>
-      <el-button type="success">登录</el-button>
-    </el-from-item>
-    <el-from-item>
-      <RouterLink to="/register"><el-button type="primary">注册</el-button></RouterLink>
-    </el-from-item>
-  </el-form>
-  </div>
+<script setup lang="ts">
+import DotBackground from "@/components/DotBackground.vue";
+import router from "@/router";
+import { usePublicStore } from "@/stores/public";
+import { ref } from "vue";
+const loginForm = ref({
+  username: "",
+  password: "",
+});
+const userType = ref("student");
+async function onSubmit() {
+  localStorage.setItem("usertype", userType.value);
+  const usePubllic = usePublicStore();
+  await usePubllic.userLogin(loginForm.value);
+  router.push(`/${userType.value}`);
+}
+</script>
 
+<template>
+  <div>
+    <main>
+      <h1 class="title">登录</h1>
+      <div class="login-form-wrapper">
+        <el-radio-group v-model="userType" size="large">
+          <el-radio-button label="教师" value="teacher" />
+          <el-radio-button label="学生" value="student" />
+          <el-radio-button label="管理员" value="manager" />
+        </el-radio-group>
+        <ElForm label-position="top">
+          <ElFormItem label="邮箱">
+            <ElInput type="usernmae" v-model="loginForm.username" />
+          </ElFormItem>
+          <ElFormItem label="密码" style="margin-bottom: calc(18px - 1.2rem)">
+            <ElInput
+              type="password"
+              show-password
+              v-model="loginForm.password"
+            />
+          </ElFormItem>
+          <br />
+          <ElButton style="width: 100%" type="primary" plain @click="onSubmit"
+            >登录</ElButton
+          >
+        </ElForm>
+        <div style="display: flex; align-items: center; margin-top: 1rem">
+          <ElText>没有账户？</ElText>
+          <ElLink type="primary" @click="$router.push('/register')"
+            >立即注册</ElLink
+          >
+        </div>
+      </div>
+    </main>
+    <DotBackground />
+  </div>
 </template>
 
-<script lang="ts" setup>
-import { reactive, ref } from 'vue'
-import type { FormProps } from 'element-plus'
+<style scoped lang="scss">
+@import "@/styles/variables.scss";
 
-const userType = ref('student')
+header {
+  margin-top: 8svh;
 
-const formLabelAlign = reactive({
-  name: '',
-  region: '',
-  type: '',
-})
-</script>
-<style lang="scss" scoped>
-.login {
-  height: 100vh;
-  width: 100vw;
+  @media (max-height: $mobile-height-breakpoint) {
+    margin-top: 0;
+  }
+}
+
+main {
+  margin-top: 8svh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
   flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+  @media (max-height: $mobile-height-breakpoint) {
+    margin-top: 10svh;
+  }
+}
+
+.title {
+  font-weight: 200;
+}
+
+.login-form-wrapper {
+  width: 280px;
+  padding: 3rem 2rem;
+  background-color: #fff;
+  border-radius: $border-radius-lg;
+}
+
+.captcha-wrapper {
+  width: 100%;
+  display: flex;
+  gap: 0.5rem;
+
+  .captcha {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    background-size: 100% 100%;
+    flex: 2;
+    border-radius: $border-radius-md;
+  }
 }
 </style>

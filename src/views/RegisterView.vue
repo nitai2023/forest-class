@@ -1,86 +1,179 @@
-<template>
-  <div class="register">
-    <el-radio-group v-model="userType" size="large">
-    <el-radio-button  label="学生" value="student">学生</el-radio-button>
-    <el-radio-button  label="老师" value="teacher">老师</el-radio-button>
-    <el-radio-button  label="管理员" value="admin">管理员</el-radio-button>
-  </el-radio-group>
-  <div style="margin: 20px" />
-  <el-form
-    :label-position="labelPosition"
-    label-width="auto"
-    :model="formLabelAlign"
-    style="max-width: 600px"
-    class="form"
-  >
-    <el-form-item label="名字">
-      <el-input v-model="formLabelAlign.name" />
-    </el-form-item>
-    <el-form-item label="性别">
-      <el-input v-model="formLabelAlign.gender" />
-    </el-form-item>
-    <!-- <el-form-item label="生日">
-      <el-date-picker
-      v-model="formLabelAlign.birth"
-      type="date"
-      placeholder="选择生日"
-      format="YYYY-MM-DD"
-      value-format="YYYY-MM-DD">
-    </el-date-picker>
-    </el-form-item> -->
-    <el-form-item label="手机号">
-      <el-input v-model="formLabelAlign.phoneNum" />
-    </el-form-item>
-    <el-form-item label="邮箱">
-      <el-input v-model="formLabelAlign.email" />
-    </el-form-item>
-    <el-form-item label="密码" >
-      <el-input v-model="formLabelAlign.password" show-password/>
-    </el-form-item>
-    <el-form-item label="地址">
-      <el-input v-model="formLabelAlign.address" />
-    </el-form-item>
-    <el-from-item>
-    <el-button type="primary" @click="handleRegister">注册</el-button>
-        </el-from-item>
-        <el-from-item>
-          <RouterLink to="/login"><el-button type="success">登录</el-button></RouterLink>
-        </el-from-item>
-  </el-form>
-  </div>
+<script setup lang="ts">
+import DotBackground from "@/components/DotBackground.vue";
+import router from "@/router";
+import { usePublicStore } from "@/stores/public";
+import { ref } from "vue";
+const registerForm = ref({});
+const genders = [
+  {
+    label: "男",
+    value: "男",
+  },
+  {
+    label: "女",
+    value: "女",
+  },
+];
 
+const userType = ref("student");
+const onSubmit = async () => {
+  localStorage.setItem("usertype", userType.value);
+  const usePubllic = usePublicStore();
+  await usePubllic.userRegister(registerForm.value);
+  router.push("/login");
+};
+</script>
+
+<template>
+  <div>
+    <header>
+      <NavBar compact />
+    </header>
+    <main>
+      <h1 class="title">注册</h1>
+      <div class="register-form-wrapper">
+        <el-radio-group v-model="userType" size="large">
+          <el-radio-button label="教师" value="teacher" />
+          <el-radio-button label="学生" value="student" />
+        </el-radio-group>
+        <el-form
+          v-if="userType === 'student'"
+          label-width="left"
+          :model="registerForm"
+          class="register-form"
+        >
+          <el-form-item label="姓名">
+            <el-input v-model="registerForm.name" />
+          </el-form-item>
+          <el-form-item label="性别">
+            <el-select
+              v-model="registerForm.gender"
+              placeholder="性别"
+              style="width: 240px"
+            >
+              <el-option
+                v-for="item in genders"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="生日">
+            <el-input v-model="registerForm.birth" />
+          </el-form-item>
+          <el-form-item label="电话">
+            <el-input v-model="registerForm.phoneNum" />
+          </el-form-item>
+          <el-form-item label="邮箱">
+            <el-input v-model="registerForm.email" />
+          </el-form-item>
+          <el-form-item label="密码">
+            <el-input v-model="registerForm.password" />
+          </el-form-item>
+          <el-form-item label="地址">
+            <el-input v-model="registerForm.address" />
+          </el-form-item>
+        </el-form>
+        <el-form
+          v-else-if="userType === 'teacher'"
+          label-width="left"
+          :model="registerForm"
+          class="register-form"
+        >
+          <el-form-item label="姓名">
+            <el-input v-model="registerForm.nickname" />
+          </el-form-item>
+          <el-form-item label="性别">
+            <el-select
+              v-model="registerForm.gender"
+              placeholder="性别"
+              style="width: 240px"
+            >
+              <el-option
+                v-for="item in genders"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="电话">
+            <el-input v-model="registerForm.phoneNum" />
+          </el-form-item>
+          <el-form-item label="邮箱">
+            <el-input v-model="registerForm.email" />
+          </el-form-item>
+          <el-form-item label="密码">
+            <el-input v-model="registerForm.password" />
+          </el-form-item>
+        </el-form>
+
+        <ElButton style="width: 100%" type="primary" plain @click="onSubmit"
+          >注册</ElButton
+        >
+        <div style="display: flex; align-items: center; margin-top: 1rem">
+          <ElText>已有账户？</ElText>
+          <ElLink type="primary" @click="$router.push('/login')"
+            >立即登录</ElLink
+          >
+        </div>
+      </div>
+    </main>
+    <DotBackground />
+  </div>
 </template>
 
-<script lang="ts" setup>
-import { reactive, ref } from 'vue'
-import type { FormProps } from 'element-plus'
-import {StudentRegister} from '../api/type'
-import router from '@/router';
-const userType=ref('')
-const formLabelAlign = reactive({
-  name: '',
-  gender: '',
-  birth:1093114928000,
-  phoneNum: '',
-  email: '',
-  password: '',
-  address: '',
-  avatarUrl:'http://dummyimage.com/100x100',
-})
-const handleRegister = async() => {
-  const res = await StudentRegister(formLabelAlign)
-  console.log(res)
-  router.push("/login");
+<style scoped lang="scss">
+@import "@/styles/variables.scss";
+
+header {
+  margin-top: 8svh;
+
+  @media (max-height: $mobile-height-breakpoint) {
+    margin-top: 0;
+  }
 }
-</script>
-<style lang="scss" scoped>
-.register {
-  height: 100vh;
-  width: 100vw;
+
+main {
+  margin-top: 8svh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
   flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+  @media (max-height: $mobile-height-breakpoint) {
+    margin-top: 2svh;
+  }
+}
+
+.title {
+  font-weight: 200;
+}
+
+.register-form-wrapper {
+  width: 280px;
+  padding: 3rem 2rem;
+  background-color: #fff;
+  border-radius: $border-radius-lg;
+  .register-form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+.captcha-wrapper {
+  width: 100%;
+  display: flex;
+  gap: 0.5rem;
+
+  .captcha {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    background-size: 100% 100%;
+    flex: 2;
+    border-radius: $border-radius-md;
+  }
 }
 </style>

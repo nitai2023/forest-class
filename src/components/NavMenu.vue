@@ -5,10 +5,10 @@
       class="el-menu-demo"
       mode="horizontal"
       router="true"
-      style="min-width: 500px"
+      style="min-width: 800px"
       @select="handleSelect"
     >
-      <el-menu-item index="1" route="/administrator">公告</el-menu-item>
+      <el-menu-item index="1" route="announce">公告</el-menu-item>
       <slot name="Menu"></slot>
     </el-menu>
     <el-avatar

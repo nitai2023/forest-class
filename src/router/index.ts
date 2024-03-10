@@ -1,12 +1,12 @@
-import AdministratorMain from "@/views/Administrator/AdministratorMain.vue";
+import ManagerMain from "@/views/ManagerView/ManagerMain.vue";
 import RegisterView from "@/views/RegisterView.vue";
 import StudentMain from "@/views/StudentView/StudentMain.vue";
 import TeacherMain from "@/views/TeacherView/TeacherMain.vue";
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(),
   routes: [
     {
       path: "/",
@@ -22,34 +22,81 @@ const router = createRouter({
       component: RegisterView,
     },
     {
-      path: "/administrator",
-      component: AdministratorMain,
+      path: "/manager",
+      component: ManagerMain,
+      redirect: "/manager/announce",
       children: [
         {
-          path: "/administrator/userinfo",
-          component: () => import("@/views/Administrator/AdminInfoView.vue"),
+          path: "/manager/userinfo",
+          component: () => import("@/views/ManagerView/ManagerInfoView.vue"),
+        },
+        {
+          path: "/manager/announce",
+          component: () => import("@/components/Announce.vue"),
+        },
+        {
+          path: "/manager/course",
+          component: () => import("@/views/ManagerView/ManagerCourseView.vue"),
+        },
+        {
+          path: "/manager/department",
+          component: () =>
+            import("@/views/ManagerView/ManagerDepartmentView.vue"),
+        },
+        {
+          path: "/manager/class",
+          component: () => import("@/views/ManagerView/ManagerClassView.vue"),
         },
       ],
     },
     {
       path: "/student",
       component: StudentMain,
+      redirect: "/student/announce",
       children: [
         {
           path: "/student/userinfo",
           component: () => import("@/views/StudentView/StudentInfoView.vue"),
+        },
+        {
+          path: "/student/announce",
+          component: () => import("@/components/Announce.vue"),
+        },
+        {
+          path: "/student/homework",
+          component: () =>
+            import("@/views/StudentView/StudentHomeworkView.vue"),
+        },
+        {
+          path: "/student/homeworkunfinished",
+          component: () =>
+            import("@/views/StudentView/StudentHomeworkUnfinishedView.vue"),
         },
       ],
     },
     {
       path: "/teacher",
       component: TeacherMain,
+      redirect: "/teacher/announce",
       children: [
         {
           path: "/teacher/userinfo",
           component: () => import("@/views/TeacherView/TeacherInfoView.vue"),
         },
+        {
+          path: "/teacher/announce",
+          component: () => import("@/components/Announce.vue"),
+        },
+        {
+          path: "/teacher/homework",
+          component: () =>
+            import("@/views/TeacherView/TeacherHomeworkView.vue"),
+        },
       ],
+    },
+    {
+      path: "/:pathMatch(.*)*",
+      component: () => import("@/views/NotFoundView.vue"),
     },
   ],
 });
