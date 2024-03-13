@@ -1,4 +1,5 @@
 import {
+  createAnnouncementAPI,
   createClassAPI,
   createCourseAPI,
   createDepartmentAPI,
@@ -10,25 +11,29 @@ import {
   getCourseAPI,
   getDepartmentAPI,
   getManagerInfoAPI,
-  postAnnouncementAPI,
+  getTeacherListAPI,
   updateAnnouncementAPI,
   updateClassAPI,
+  updateCourseAPI,
   updateDepartmentAPI,
 } from "@/api/type";
 import { defineStore } from "pinia";
 export const useManagerStore = defineStore("manager", () => {
   async function getManagerInfo() {
     const res = await getManagerInfoAPI();
-    console.log(res);
-
-    return res;
+    return res.data.data;
   }
+  async function getTeacherList() {
+    const res = await getTeacherListAPI();
+    return res.data.data;
+  }
+
   //公告
   async function deleteAnnouncement(id: number) {
     await deleteAnnouncementAPI(id);
   }
-  async function postAnnouncement(form: any) {
-    await postAnnouncementAPI(form);
+  async function createAnnouncement(form: any) {
+    await createAnnouncementAPI(form);
   }
   async function updateAnnouncement(form: any) {
     await updateAnnouncementAPI(form);
@@ -39,7 +44,7 @@ export const useManagerStore = defineStore("manager", () => {
   }
   async function getDepartment() {
     const res = await getDepartmentAPI();
-    return res;
+    return res.data.data;
   }
   async function deleteDepartment(id: number) {
     await deleteDepartmentAPI(id);
@@ -53,7 +58,7 @@ export const useManagerStore = defineStore("manager", () => {
   }
   async function getClass() {
     const res = await getClassAPI();
-    return res;
+    return res.data.data;
   }
   async function deleteClass(id: number) {
     await deleteClassAPI(id);
@@ -67,18 +72,18 @@ export const useManagerStore = defineStore("manager", () => {
   }
   async function getCourse() {
     const res = await getCourseAPI();
-    return res;
+    return res.data.data;
   }
   async function deleteCourse(id: number) {
     await deleteCourseAPI(id);
   }
   async function updateCourse(form: any) {
-    await updateClassAPI(form);
+    await updateCourseAPI(form);
   }
   return {
     getManagerInfo,
     deleteAnnouncement,
-    postAnnouncement,
+    createAnnouncement,
     updateAnnouncement,
     createDepartment,
     getDepartment,
@@ -92,5 +97,6 @@ export const useManagerStore = defineStore("manager", () => {
     getCourse,
     deleteCourse,
     updateCourse,
+    getTeacherList,
   };
 });

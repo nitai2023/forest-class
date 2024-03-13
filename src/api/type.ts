@@ -1,5 +1,8 @@
 //此文件用于封装axios
 import request from "./index";
+const getToken = () => {
+  return localStorage.getItem("token");
+};
 // 公用
 export const registerAPI = (form: any) => {
   return request({
@@ -29,6 +32,29 @@ export const backPasswordAPI = (form: any) => {
     data: form,
   });
 };
+// 获取老师列表
+export const getTeacherListAPI = () => {
+  return request({
+    url: `/teacher/getTeachers`,
+    method: "POST",
+    headers: {
+      Authorization: getToken(),
+    },
+  });
+};
+export const getStudentListAPI = (courseId: number) => {
+  return request({
+    url: `/student/getStudents`,
+    method: "POST",
+    headers: {
+      Authorization: getToken(),
+    },
+    params: {
+      courseId,
+    },
+  });
+};
+
 //公告
 export const getAnnouncementAPI = (type: number) => {
   return request({
@@ -36,9 +62,10 @@ export const getAnnouncementAPI = (type: number) => {
     method: "POST",
     params: {
       type: type,
+      title: "",
     },
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -46,17 +73,20 @@ export const deleteAnnouncementAPI = (id: number) => {
   return request({
     url: `/announcement/deleteAnnouncement`,
     method: "DELETE",
+    headers: {
+      Authorization: getToken(),
+    },
     params: {
       id,
     },
   });
 };
-export const postAnnouncementAPI = (form: any) => {
+export const createAnnouncementAPI = (form: any) => {
   return request({
     url: `/announcement/createAnnouncement`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -66,7 +96,7 @@ export const updateAnnouncementAPI = (form: any) => {
     url: `/announcement/updateAnnouncement`,
     method: "PUT",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -77,7 +107,7 @@ export const createDepartmentAPI = (departmentName: string) => {
     url: `/department/createDepartment`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     params: {
       departmentName,
@@ -89,7 +119,7 @@ export const getDepartmentAPI = () => {
     url: `/department/getDepartments`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -97,6 +127,9 @@ export const deleteDepartmentAPI = (id: number) => {
   return request({
     url: `/department/deleteDepartment`,
     method: "DELETE",
+    headers: {
+      Authorization: getToken(),
+    },
     params: {
       id,
     },
@@ -107,7 +140,7 @@ export const updateDepartmentAPI = (form: any) => {
     url: `/department/updateDepartment`,
     method: "PUT",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -118,7 +151,7 @@ export const createClassAPI = (form: any) => {
     url: `/class/createClass`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -128,7 +161,7 @@ export const getClassAPI = () => {
     url: `/class/getClasses`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -137,7 +170,7 @@ export const deleteClassAPI = (id: number) => {
     url: `/class/deleteClass`,
     method: "DELETE",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     params: {
       id,
@@ -149,7 +182,7 @@ export const updateClassAPI = (form: any) => {
     url: `/class/updateClass`,
     method: "PUT",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -160,7 +193,7 @@ export const createCourseAPI = (form: any) => {
     url: `/course/createCourse`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -170,7 +203,7 @@ export const getCourseAPI = () => {
     url: `/course/getCourses`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -179,7 +212,7 @@ export const deleteCourseAPI = (id: number) => {
     url: `/course/deleteCourse`,
     method: "DELETE",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     params: {
       id,
@@ -188,10 +221,10 @@ export const deleteCourseAPI = (id: number) => {
 };
 export const updateCourseAPI = (form: any) => {
   return request({
-    url: `/Course/updateCourse`,
+    url: `/course/updateCourse`,
     method: "PUT",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -202,7 +235,7 @@ export const getManagerInfoAPI = () => {
     url: `/manager/getManagerInfo`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -212,7 +245,7 @@ export const getStudentInfoAPI = () => {
     url: `/student/getStudentInfo`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -221,7 +254,7 @@ export const updateStudentInfoAPI = (form: any) => {
     url: `/student/updateStudentInfo`,
     method: "PUT",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -231,7 +264,7 @@ export const getStudentHomeworkAPI = () => {
     url: `/student/getHomeworks`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -240,7 +273,7 @@ export const getStudentHomeworkUnFinishedAPI = () => {
     url: `/student/checkFishedStatus`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -249,7 +282,7 @@ export const commitStudentHomeworkAPI = (form: any) => {
     url: `/student/commitHomework`,
     method: "PUT",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -260,7 +293,7 @@ export const getTeacherInfoAPI = () => {
     url: `/teacher/getTeacherInfo`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -269,7 +302,7 @@ export const updateTeacherInfoAPI = (form: any) => {
     url: `/teacher/updateTeacherInfo`,
     method: "PUT",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -279,7 +312,7 @@ export const createHomeworkAPI = (form: any) => {
     url: `/teacher/createHomework`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -289,7 +322,7 @@ export const getTeacherHomeworkAPI = () => {
     url: `/teacher/getHomeworks`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -301,7 +334,7 @@ export const getHomeworkFishConditionAPI = (homeworkId: number) => {
       homeworkId,
     },
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
   });
 };
@@ -310,7 +343,7 @@ export const checkoutHomeworkAPI = (form: any) => {
     url: `/teacher/correctHomework`,
     method: "PUT",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     data: form,
   });
@@ -321,7 +354,7 @@ export const getHomeworkRankAPI = (homeworkId: string) => {
     url: `/homework/getRank`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     params: {
       homeworkId,
@@ -333,7 +366,7 @@ export const getHomeworkScoreDistributionAPI = (homeworkId: string) => {
     url: `/homework/getScoreDistribution`,
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: getToken(),
     },
     params: {
       homeworkId,

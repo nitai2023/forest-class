@@ -22,6 +22,10 @@ const router = createRouter({
       component: RegisterView,
     },
     {
+      path: "/backpassword",
+      component: () => import("@/views/BackPasswordView.vue"),
+    },
+    {
       path: "/manager",
       component: ManagerMain,
       redirect: "/manager/announce",
@@ -46,6 +50,10 @@ const router = createRouter({
         {
           path: "/manager/class",
           component: () => import("@/views/ManagerView/ManagerClassView.vue"),
+        },
+        {
+          path: "/manager/studentlist",
+          component: () => import("@/views/StudentListView.vue"),
         },
       ],
     },
@@ -92,6 +100,10 @@ const router = createRouter({
           component: () =>
             import("@/views/TeacherView/TeacherHomeworkView.vue"),
         },
+        {
+          path: "/teacher/studentlist",
+          component: () => import("@/views/StudentListView.vue"),
+        },
       ],
     },
     {
@@ -100,5 +112,20 @@ const router = createRouter({
     },
   ],
 });
-
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem("token");
+  if (
+    token ||
+    to.path === "/login" ||
+    to.path === "/register" ||
+    to.path === "/" ||
+    to.path === "/backpassword"
+  ) {
+    if (to.path === "/login" && token) {
+      next(`/${localStorage.getItem("usertype")}`);
+    } else next();
+  } else {
+    next("/login");
+  }
+});
 export default router;

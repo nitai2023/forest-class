@@ -1,73 +1,78 @@
 <script lang="ts" setup>
+import { useManagerStore } from "@/stores/manager";
 import { Edit } from "@element-plus/icons-vue";
-import { ref } from "vue";
-const data = [
-  {
-    id: 14,
-    department: "医学院医学院",
-  },
-  {
-    id: 11,
-    department: "商学院",
-  },
-  {
-    id: 15,
-    department: "工程学院",
-  },
-  {
-    id: 17,
-    department: "心理学院",
-  },
-  {
-    id: 13,
-    department: "文学与语言学院",
-  },
-  {
-    id: 16,
-    department: "法学院",
-  },
-  {
-    id: 12,
-    department: "生物学院",
-  },
-  {
-    id: 19,
-    department: "社会学学院",
-  },
-  {
-    id: 18,
-    department: "艺术与设计学院",
-  },
-  {
-    id: 10,
-    department: "计算机科学与工程学院",
-  },
-];
+import { onMounted, ref } from "vue";
+
+const managerStore = useManagerStore();
 
 const updateVisible = ref(false);
 const departmentInfo = ref({});
 const editVisible = ref(false);
 const departmentName = ref("");
 
+const departmentList = ref([]);
+
+async function getDepartmentList() {
+  departmentList.value = await managerStore.getDepartment();
+}
+
+onMounted(async () => {
+  await getDepartmentList();
+});
+
 const updateDeparment = (form: any) => {
   updateVisible.value = true;
   departmentInfo.value = form;
+};
+const cancleUpdateDeparment = () => {
+  updateVisible.value = false;
+  departmentInfo.value = {};
+};
+const doUpdateDeparment = async () => {
+  const form = {
+    id: departmentInfo.value.id,
+    department: departmentInfo.value.department,
+  };
+  await managerStore.updateDepartment(form);
+  updateVisible.value = false;
+  getDepartmentList();
+};
+
+const deleteDepartment = async (id: number) => {
+  await managerStore.deleteDepartment(id);
+  getDepartmentList();
+};
+
+const createDepartment = () => {
+  departmentName.value = "";
+  editVisible.value = true;
+};
+const cancleCreateDepartment = () => {
+  departmentName.value = "";
+  editVisible.value = false;
+};
+const doCreateDepartment = async () => {
+  await managerStore.createDepartment(departmentName.value);
+  editVisible.value = false;
+  getDepartmentList();
 };
 </script>
 
 <template>
   <div>
     <el-row :gutter="12">
-      <el-col :span="8" :key="form.id" v-for="form in data">
+      <el-col :span="8" :key="item.id" v-for="item in departmentList">
         <el-card shadow="hover" class="competion-card"
-          ><h4>学院：{{ form.department }}</h4>
+          ><h4>学院：{{ item.department }}</h4>
           <div>
             <div class="bottom">
-              <span class="type">序列号：{{ form.id }}</span>
+              <span class="type">序列号：{{ item.id }}</span>
             </div>
           </div>
-          <el-button text @click="updateDeparment(form)">修改院系</el-button>
-          <el-button text type="danger">删除院系 </el-button>
+          <el-button text @click="updateDeparment(item)">修改院系</el-button>
+          <el-button text type="danger" @click="deleteDepartment(item.id)"
+            >删除院系
+          </el-button>
         </el-card>
       </el-col>
     </el-row>
@@ -79,12 +84,12 @@ const updateDeparment = (form: any) => {
       style="width: 240px"
       placeholder="Please input"
     />
-    <el-button>Default</el-button>
-    <el-button type="primary">Primary</el-button>
+    <el-button @click="cancleUpdateDeparment">取消</el-button>
+    <el-button type="primary" @click="doUpdateDeparment">确认</el-button>
   </el-dialog>
 
   <el-button
-    @click="editVisible = true"
+    @click="createDepartment"
     style="position: fixed; margin-left: 95vw"
     type="primary"
     :icon="Edit"
@@ -98,8 +103,8 @@ const updateDeparment = (form: any) => {
       style="width: 240px"
       placeholder="Please input"
     />
-    <el-button>Default</el-button>
-    <el-button type="primary">Primary</el-button>
+    <el-button @click="cancleCreateDepartment">取消</el-button>
+    <el-button type="primary" @click="doCreateDepartment">创建</el-button>
   </el-dialog>
 </template>
 

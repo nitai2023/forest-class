@@ -10,7 +10,8 @@ import { defineStore } from "pinia";
 
 export const useTeacherStore = defineStore("teacher", () => {
   async function getTeacherInfo() {
-    await getTeacherInfoAPI();
+    const res = await getTeacherInfoAPI();
+    return res.data.data;
   }
   async function updateTeacherInfo(form: any) {
     await updateTeacherInfoAPI(form);
@@ -19,7 +20,8 @@ export const useTeacherStore = defineStore("teacher", () => {
     await createHomeworkAPI(form);
   }
   async function getTeacherHomework() {
-    await getTeacherHomeworkAPI();
+    const res = await getTeacherHomeworkAPI();
+    return res.data.data;
   }
   async function getHomeworkFishCondition(homeworkId: number) {
     await getHomeworkFishConditionAPI(homeworkId);

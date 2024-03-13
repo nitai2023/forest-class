@@ -1,55 +1,88 @@
+<script lang="ts" setup>
+import { useManagerStore } from "@/stores/manager";
+import { useStudentStore } from "@/stores/student";
+import { onMounted, ref } from "vue";
+
+const form = ref({});
+const departmentList = ref([]);
+const classList = ref([]);
+
+const managerStore = useManagerStore();
+const studentStore = useStudentStore();
+
+onMounted(async () => {
+  form.value = await studentStore.getStudentInfo();
+  classList.value = await managerStore.getClass();
+  departmentList.value = await managerStore.getDepartment();
+});
+
+const onSubmit = () => {
+  console.log("submit!");
+};
+const update = ref(true);
+const updateStudentInfo = async () => {
+  await studentStore.updateStudentInfo(form.value);
+  form.value = await studentStore.getStudentInfo();
+  update.value = true;
+};
+</script>
 <template>
   <el-card
     style="width: 480px; margin: 0 auto; margin-top: 20vh"
     shadow="always"
   >
     <el-form :model="form" label-width="auto" style="max-width: 600px">
-      <el-form-item label="Activity name">
+      <el-form-item label="姓名：">
         <el-input v-model="form.name" :disabled="update" />
       </el-form-item>
-      <el-form-item label="Activity gender">
+      <el-form-item label="性别：">
         <el-input v-model="form.gender" :disabled="update" />
       </el-form-item>
-      <el-form-item label="Activity email">
+      <el-form-item label="邮箱：">
         <el-input v-model="form.email" :disabled="update" />
       </el-form-item>
-      <el-form-item label="Activity phoneNum">
+      <el-form-item label="电话：">
         <el-input v-model="form.phoneNum" :disabled="update" />
       </el-form-item>
-      <el-form-item label="Activity adress">
+      <el-form-item label="住址：">
         <el-input v-model="form.address" :disabled="update" />
       </el-form-item>
-      <slot name="Info"></slot>
+      <el-form-item label="班级：">
+        <el-select
+          v-model="form.classMajorId"
+          placeholder="Select"
+          size="large"
+          style="width: 240px"
+          disabled
+        >
+          <el-option
+            v-for="item in classList"
+            :key="item.id"
+            :label="item.className"
+            :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="学院：">
+        <el-select
+          v-model="form.departmentId"
+          placeholder="Select"
+          size="large"
+          style="width: 240px"
+          disabled
+        >
+          <el-option
+            v-for="item in departmentList"
+            :key="item.id"
+            :label="item.department"
+            :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
     </el-form>
-    <el-button>Default</el-button>
-    <el-button type="primary">Primary</el-button>
+    <el-button @click="update = false">开始更改</el-button>
+    <el-button type="primary" @click="updateStudentInfo">确认</el-button>
   </el-card>
 </template>
-
-<script lang="ts" setup>
-import { ref } from "vue";
-
-// do not use same name with ref
-const update = ref(true);
-
-const form = ref({
-  id: 31,
-  name: "陈森",
-  gender: "男",
-  birth: 19,
-  phoneNum: "17380333759",
-  email: "3096567831@qq.com",
-  password: "ct0123456789",
-  address: "云南省七台河市巴青县",
-  classMajorId: null,
-  departmentId: null,
-  avatarUrl: "http://dummyimage.com/100x100",
-  accountTypeId: 3,
-});
-
-const onSubmit = () => {
-  console.log("submit!");
-};
-</script>
 
 <style lang="scss" scoped></style>

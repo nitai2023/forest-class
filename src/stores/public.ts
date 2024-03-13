@@ -2,6 +2,7 @@ import {
   backPasswordAPI,
   getAnnouncementAPI,
   getEmailCodeAPI,
+  getStudentListAPI,
   loginAPI,
   registerAPI,
 } from "@/api/type";
@@ -17,8 +18,7 @@ export const usePublicStore = defineStore("public", () => {
   }
   async function getAnnouncements(type: number) {
     const res = await getAnnouncementAPI(type);
-    console.log("111", res.data);
-    // return res.data;
+    return res.data.data;
   }
   async function getEmailCode(email: string) {
     await getEmailCodeAPI(email);
@@ -26,11 +26,17 @@ export const usePublicStore = defineStore("public", () => {
   async function backPassword(form: any) {
     await backPasswordAPI(form);
   }
+
+  async function getStudentList(courseId: number) {
+    const res = await getStudentListAPI(courseId);
+    return res.data.data;
+  }
   return {
     userRegister,
     userLogin,
     getAnnouncements,
     getEmailCode,
     backPassword,
+    getStudentList,
   };
 });

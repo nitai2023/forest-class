@@ -1,3 +1,31 @@
+<script lang="ts" setup>
+import { useManagerStore } from "@/stores/manager";
+import { useTeacherStore } from "@/stores/teacher";
+import { onMounted, ref } from "vue";
+
+const form = ref({});
+const departmentList = ref([]);
+const courseList = ref([]);
+
+const managerStore = useManagerStore();
+const teacherStore = useTeacherStore();
+
+onMounted(async () => {
+  form.value = await teacherStore.getTeacherInfo();
+  courseList.value = await managerStore.getCourse();
+  departmentList.value = await managerStore.getDepartment();
+});
+
+const onSubmit = () => {
+  console.log("submit!");
+};
+const update = ref(true);
+const updateTeacherInfo = async () => {
+  await teacherStore.updateTeacherInfo(form.value);
+  form.value = await teacherStore.getTeacherInfo();
+  update.value = true;
+};
+</script>
 <template>
   <el-card
     style="width: 480px; margin: 0 auto; margin-top: 20vh"
@@ -16,40 +44,43 @@
         <el-input v-model="form.phoneNum" :disabled="update" />
       </el-form-item>
       <el-form-item label="Activity subject">
-        <el-input
+        <el-select
           v-model="form.subject"
-          placeholder="请输入学科"
-          :disabled="update"
-        />
+          placeholder="Select"
+          size="large"
+          style="width: 240px"
+          disabled
+        >
+          <el-option
+            v-for="item in courseList"
+            :key="item.id"
+            :label="item.courseName"
+            :value="item.id"
+          />
+        </el-select>
       </el-form-item>
-      <el-form-item label="Activity department">
-        <el-input
+      <el-form-item label="学院：">
+        <el-select
           v-model="form.department"
-          placeholder="请输入部门"
-          :disabled="update"
-        />
+          placeholder="Select"
+          size="large"
+          style="width: 240px"
+          disabled
+        >
+          <el-option
+            v-for="item in departmentList"
+            :key="item.id"
+            :label="item.department"
+            :value="item.id"
+          />
+        </el-select>
       </el-form-item>
-      <slot name="Info"></slot>
     </el-form>
-    <el-button>Default</el-button>
-    <el-button type="primary">Primary</el-button></el-card
+    <el-button @click="update = false">开始更改</el-button>
+    <el-button type="primary" @click="updateTeacherInfo"
+      >确认</el-button
+    ></el-card
   >
 </template>
-<script lang="ts" setup>
-import { ref } from "vue";
-
-const update = ref(true);
-
-const form = ref({
-  id: 9,
-  email: "3096567831@qq.com",
-  nickname: "lzq",
-  avatarUrl: "http://dummyimage.com/100x100",
-  gender: "男",
-  phoneNum: "17380333759",
-  subject: null,
-  department: null,
-});
-</script>
 
 <style lang="scss" scoped></style>

@@ -1,156 +1,111 @@
 <script lang="ts" setup>
+import { useManagerStore } from "@/stores/manager";
 import { Edit } from "@element-plus/icons-vue";
-import { ref } from "vue";
-const data = [
-  {
-    id: 11,
-    major: "计算机科学专业",
-    className: "计科221",
-  },
-  {
-    id: 12,
-    major: "计算机科学专业",
-    className: "计科222",
-  },
-  {
-    id: 13,
-    major: "软件工程专业",
-    className: "软工221",
-  },
-  {
-    id: 14,
-    major: "软件工程专业",
-    className: "软工222",
-  },
-  {
-    id: 15,
-    major: "医学专业",
-    className: "医学221",
-  },
-  {
-    id: 16,
-    major: "医学专业",
-    className: "医学222",
-  },
-  {
-    id: 17,
-    major: "护理学专业",
-    className: "护理221",
-  },
-  {
-    id: 18,
-    major: "护理学专业",
-    className: "护理222",
-  },
-  {
-    id: 19,
-    major: "社会工作专业",
-    className: "社工221",
-  },
-  {
-    id: 20,
-    major: "社会工作专业",
-    className: "社工222",
-  },
-];
+import { onMounted, ref } from "vue";
+
+const managerStore = useManagerStore();
+
+const classList = ref([]);
+
+async function getClassList() {
+  classList.value = await managerStore.getClass();
+}
+
+onMounted(async () => {
+  await getClassList();
+});
 
 const updateVisible = ref(false);
 const classInfo = ref({});
 const editVisible = ref(false);
 const className = ref("");
+const major = ref("");
 
 const updateClass = (form: any) => {
   updateVisible.value = true;
   classInfo.value = form;
 };
+const cancleUpdateClass = () => {
+  updateVisible.value = false;
+  classInfo.value = {};
+};
+const doUpdateClass = async () => {
+  const form = {
+    id: classInfo.value.id,
+    className: classInfo.value.className,
+    major: classInfo.value.major,
+  };
+  await managerStore.updateClass(form);
+  updateVisible.value = false;
+  getClassList();
+};
 
-const value = ref("");
-const _value = ref("");
-const options = [
-  {
-    value: "Option1",
-    label: "Option1",
-  },
-  {
-    value: "Option2",
-    label: "Option2",
-  },
-  {
-    value: "Option3",
-    label: "Option3",
-  },
-  {
-    value: "Option4",
-    label: "Option4",
-  },
-  {
-    value: "Option5",
-    label: "Option5",
-  },
-];
-const _options = [
-  {
-    value: "Option1",
-    label: "Option1",
-  },
-  {
-    value: "Option2",
-    label: "Option2",
-  },
-  {
-    value: "Option3",
-    label: "Option3",
-  },
-  {
-    value: "Option4",
-    label: "Option4",
-  },
-  {
-    value: "Option5",
-    label: "Option5",
-  },
-];
+const deleteClass = async (id: number) => {
+  await managerStore.deleteClass(id);
+  getClassList();
+};
+
+const createClass = () => {
+  className.value = "";
+  major.value = "";
+  editVisible.value = true;
+};
+const cancleCreateClass = () => {
+  className.value = "";
+  major.value = "";
+  editVisible.value = false;
+};
+const doCreateClass = async () => {
+  const form = {
+    className: className.value,
+    major: major.value,
+  };
+  await managerStore.createClass(form);
+  editVisible.value = false;
+  getClassList();
+};
 </script>
 
 <template>
   <div>
     <el-row :gutter="12">
-      <el-col :span="8" :key="form.id" v-for="form in data">
+      <el-col :span="8" :key="item.id" v-for="item in classList">
         <el-card shadow="hover" class="competion-card"
-          ><h4>班级：{{ form.className }}</h4>
+          ><h4>班级：{{ item.className }}</h4>
           <div>
             <div class="bottom">
-              <span class="type">专业：{{ form.major }}</span>
-              <span class="type">序列号：{{ form.id }}</span>
+              <span class="type">专业：{{ item.major }}</span>
+              <span class="type">序列号：{{ item.id }}</span>
             </div>
           </div>
-          <el-button text @click="updateClass(form)">修改班级</el-button>
-          <el-button text type="danger">删除班级 </el-button>
+          <el-button text @click="updateClass(item)">修改班级</el-button>
+          <el-button text type="danger" @click="deleteClass(item.id)"
+            >删除班级
+          </el-button>
         </el-card>
       </el-col>
     </el-row>
   </div>
   <el-dialog v-model="updateVisible" title="修改班级" width="600">
-    <label for="">新班级名：</label>
+    <label for="">班级名：</label>
     <el-input
       v-model="classInfo.className"
       style="width: 240px"
-      placeholder="Please input"
+      placeholder="默认"
     />
-    <el-select v-model="value" placeholder="Select" style="width: 240px">
-      <el-option
-        v-for="item in options"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
-      />
-    </el-select>
-    <el-button>Default</el-button>
-    <el-button type="primary">Primary</el-button>
+    <label for="">专业：</label>
+    <el-input
+      v-model="classInfo.major"
+      style="width: 240px"
+      placeholder="默认"
+    />
+    <br />
+    <el-button @click="cancleUpdateClass">取消</el-button>
+    <el-button type="primary" @click="doUpdateClass">确认</el-button>
   </el-dialog>
 
   <el-button
-    @click="editVisible = true"
+    @click="createClass"
     style="position: fixed; margin-left: 95vw"
     type="primary"
     :icon="Edit"
@@ -164,16 +119,10 @@ const _options = [
       style="width: 240px"
       placeholder="Please input"
     />
-    <el-select v-model="_value" placeholder="Select" style="width: 240px">
-      <el-option
-        v-for="item in _options"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
-      />
-    </el-select>
-    <el-button>Default</el-button>
-    <el-button type="primary">Primary</el-button>
+    <label for="">专业：</label>
+    <el-input v-model="major" style="width: 240px" placeholder="Please input" />
+    <el-button @click="cancleCreateClass">取消</el-button>
+    <el-button type="primary" @click="doCreateClass">确认</el-button>
   </el-dialog>
 </template>
 

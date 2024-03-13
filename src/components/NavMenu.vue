@@ -1,7 +1,7 @@
 <template>
   <div class="nav-menu">
     <el-menu
-      :default-active="activeIndex"
+      :default-active="1"
       class="el-menu-demo"
       mode="horizontal"
       router="true"
@@ -11,17 +11,24 @@
       <el-menu-item index="1" route="announce">公告</el-menu-item>
       <slot name="Menu"></slot>
     </el-menu>
-    <el-avatar
-      src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-    />
+
+    <div style="display: flex; justify-content: space-around; width: 120px">
+      <div @click="logout">
+        <el-icon size="22" style="margin-top: 15px"><SwitchButton /></el-icon>
+      </div>
+
+      <el-avatar
+        src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+      />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-const activeIndex = "1";
-const activeIndex2 = "2";
-const handleSelect = function (key, keyPath) {
-  console.log(key, keyPath);
+const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userType");
+  location.reload();
 };
 </script>
 

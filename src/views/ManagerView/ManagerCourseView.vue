@@ -1,79 +1,201 @@
 <script lang="ts" setup>
-import { ref } from "vue";
-const data = [
-  {
-    courseId: 13,
-    courseName: "数据结构与算法",
-    departmentName: "计算机科学与工程学院",
-    teacherName: "张老师",
-    startDate: 1677772800000,
-    endDate: 1677753600000,
-    description: "本课程将深入研究数据结构和算法的基本原理和应用。",
-    className: "计科221",
-  },
-  {
-    courseId: 14,
-    courseName: "人工智能导论",
-    departmentName: "计算机科学与工程学院",
-    teacherName: "王老师",
-    startDate: 1677772800000,
-    endDate: 1677753600000,
-    description:
-      "本课程将介绍人工智能的基本概念和应用，涵盖机器学习、深度学习等方面的内容。",
-    className: "计科222",
-  },
-  {
-    courseId: 15,
-    courseName: "生物化学",
-    departmentName: "生物学院",
-    teacherName: "刘哈哈",
-    startDate: 1677772800000,
-    endDate: 1677753600000,
-    description: "本课程将深入研究生物化学领域的基本原理和实验技术。",
-    className: "医学221",
-  },
-];
+import { useManagerStore } from "@/stores/manager";
+import { Edit } from "@element-plus/icons-vue";
+import { onMounted, ref } from "vue";
+const managerStore = useManagerStore();
 
-const update = ref(false);
-const classInfo = ref({});
-const updateClass = (form: any) => {
-  console.log(form);
-  update.value = true;
-  classInfo.value = form;
+const updateVisible = ref(false);
+const editVisible = ref(false);
+
+const courseList = ref([]);
+const courseInfo = ref({});
+const newCourseInfo = ref({});
+
+const departmentList = ref([]);
+const classList = ref([]);
+const TeacherList = ref([]);
+
+async function getCourseList() {
+  courseList.value = await managerStore.getCourse();
+}
+
+onMounted(async () => {
+  await getCourseList();
+  classList.value = await managerStore.getClass();
+  departmentList.value = await managerStore.getDepartment();
+  TeacherList.value = await managerStore.getTeacherList();
+});
+
+const updateCourse = (form: any) => {
+  updateVisible.value = true;
+  courseInfo.value = form;
+};
+const cancleUpdateCourse = () => {
+  updateVisible.value = false;
+  courseInfo.value = {};
+};
+const doUpdateCourse = async () => {
+  await managerStore.updateCourse(courseInfo.value);
+  updateVisible.value = false;
+  getCourseList();
+};
+const deleteCourse = async (id: number) => {
+  await managerStore.deleteCourse(id);
+  getCourseList();
+};
+
+const createCourse = () => {
+  editVisible.value = true;
+  newCourseInfo.value = {};
+};
+const cancleCreateCourse = () => {
+  editVisible.value = false;
+  newCourseInfo.value = {};
+};
+const doCreateCourse = async () => {
+  (newCourseInfo.value.endDate = 1677753600000),
+    await managerStore.createCourse(newCourseInfo.value);
+  editVisible.value = false;
+  getCourseList();
 };
 </script>
 
 <template>
   <div>
     <el-row :gutter="12">
-      <el-col :span="8" :key="form.courseId" v-for="form in data">
+      <el-col :span="8" :key="item.courseId" v-for="item in courseList">
         <el-card shadow="hover" class="course-card"
-          ><h4>{{ form.courseName }}</h4>
+          ><h4>{{ item.courseName }}</h4>
           <div>
             <div class="bottom">
-              <span class="type">所属学院：{{ form.departmentName }}</span>
-              <span class="type">任课老师: {{ form.teacherName }}</span>
-              <span class="type">班级: {{ form.className }}</span>
-              <p class="type">课程介绍：{{ form.description }}</p>
+              <span class="type">所属学院：{{ item.departmentName }}</span>
+              <span class="type">任课老师: {{ item.teacherName }}</span>
+              <span class="type">班级: {{ item.className }}</span>
+              <p class="type">课程介绍：{{ item.description }}</p>
             </div>
           </div>
-          <el-button text @click="updateClass(form)">修改课程</el-button>
-          <el-button text type="danger">删除课程 </el-button>
+          <el-button text @click="updateCourse(item)">修改课程</el-button>
+          <el-button text type="danger" @click="deleteCourse(item.courseId)"
+            >删除课程
+          </el-button>
         </el-card>
       </el-col>
     </el-row>
-    <el-dialog v-if="update" v-model="update" title="课程管理" width="800">
-      <el-form :model="form" label-width="auto" style="max-width: 600px">
-        <el-form-item label="courseName">
-          <el-input v-model="classInfo.courseName" />
-        </el-form-item>
-        <el-form-item label="description">
-          <el-input v-model="classInfo.description" type="textarea" />
-        </el-form-item>
-        <slot name="Info"></slot>
-      </el-form>
-      <el-button>Default</el-button>
-      <el-button type="primary">Primary</el-button>
+    <el-dialog v-model="updateVisible" title="修改课程" width="600">
+      <label for="">新院系名：</label>
+      <el-input
+        v-model="courseInfo.courseName"
+        style="width: 240px"
+        placeholder="Please input"
+      />
+      <el-input
+        v-model="courseInfo.description"
+        style="width: 240px"
+        placeholder="Please input"
+      />
+      <el-select
+        v-model="courseInfo.departmentName"
+        placeholder="Select"
+        size="large"
+        style="width: 240px"
+      >
+        <el-option
+          v-for="item in departmentList"
+          :key="item.id"
+          :label="item.department"
+          :value="item.id"
+        />
+      </el-select>
+      <el-select
+        v-model="courseInfo.className"
+        placeholder="Select"
+        size="large"
+        style="width: 240px"
+      >
+        <el-option
+          v-for="item in classList"
+          :key="item.id"
+          :label="item.className"
+          :value="item.id"
+        />
+      </el-select>
+      <el-select
+        v-model="courseInfo.teacherName"
+        placeholder="Select"
+        size="large"
+        style="width: 240px"
+      >
+        <el-option
+          v-for="item in TeacherList"
+          :key="item.id"
+          :label="item.nickname"
+          :value="item.id"
+        />
+      </el-select>
+      <el-button @click="cancleUpdateCourse">取消</el-button>
+      <el-button type="primary" @click="doUpdateCourse">确认</el-button>
+    </el-dialog>
+    <el-button
+      @click="createCourse"
+      style="position: fixed; margin-left: 95vw"
+      type="primary"
+      :icon="Edit"
+      circle
+    />
+
+    <el-dialog v-model="editVisible" title="新增课程" width="600">
+      <label for="">院系名：</label>
+      <el-input
+        v-model="newCourseInfo.courseName"
+        style="width: 240px"
+        placeholder="Please input"
+      />
+      <el-input
+        v-model="newCourseInfo.description"
+        style="width: 240px"
+        placeholder="Please input"
+      />
+      <el-select
+        v-model="newCourseInfo.departmentId"
+        placeholder="Select"
+        size="large"
+        style="width: 240px"
+      >
+        <el-option
+          v-for="item in departmentList"
+          :key="item.id"
+          :label="item.department"
+          :value="item.id"
+        />
+      </el-select>
+      <el-select
+        v-model="newCourseInfo.classId"
+        placeholder="Select"
+        size="large"
+        style="width: 240px"
+      >
+        <el-option
+          v-for="item in classList"
+          :key="item.id"
+          :label="item.className"
+          :value="item.id"
+        />
+      </el-select>
+      <el-select
+        v-model="newCourseInfo.teacherId"
+        placeholder="Select"
+        size="large"
+        style="width: 240px"
+      >
+        <el-option
+          v-for="item in TeacherList"
+          :key="item.id"
+          :label="item.nickname"
+          :value="item.id"
+        />
+      </el-select>
+      <el-button @click="cancleCreateCourse">取消</el-button>
+      <el-button type="primary" @click="doCreateCourse">创建</el-button>
     </el-dialog>
   </div>
 </template>

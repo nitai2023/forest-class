@@ -1,76 +1,33 @@
 <script lang="ts" setup>
-import { ref } from "vue";
-const data = [
-  {
-    id: 11,
-    title: "刘哈哈作业",
-    teacherName: "刘哈哈",
-    courseName: "生物化学",
-    studentName: "刘哈哈",
-    status: "未完成",
-    score: null,
-    solution: null,
-    fileSolutionUrl: null,
-    question: null,
-    homeWorkInfo: {
-      homeworkId: 11,
-      assignmentDate: 1709906761118,
-      dueDate: 1709663899000,
-      description: "刘哈哈刘哈哈刘哈哈",
-      title: "刘哈哈作业",
-      fileUrl: "http://evcdbwho.mil/flrtdddv",
-    },
-    answering: null,
-  },
-  {
-    id: 12,
-    title: "刘哈哈作业",
-    teacherName: "刘哈哈",
-    courseName: "生物化学",
-    studentName: "刘哈哈",
-    status: "已完成",
-    score: null,
-    solution: null,
-    fileSolutionUrl: null,
-    question: null,
-    homeWorkInfo: {
-      homeworkId: 12,
-      assignmentDate: 1709906787540,
-      dueDate: 1709663899000,
-      description: "刘哈哈刘哈哈刘哈哈未完成",
-      title: "刘哈哈作业",
-      fileUrl: "http://evcdbwho.mil/flrtdddv",
-    },
-    answering: null,
-  },
-  {
-    id: 13,
-    title: "刘哈哈作业",
-    teacherName: "刘哈哈",
-    courseName: "生物化学",
-    studentName: "刘哈哈",
-    status: "已批改",
-    score: null,
-    solution: null,
-    fileSolutionUrl: null,
-    question: null,
-    homeWorkInfo: {
-      homeworkId: 13,
-      assignmentDate: 1709906811475,
-      dueDate: 1709663899000,
-      description: "刘哈哈刘哈哈刘哈哈已经批改",
-      title: "刘哈哈作业",
-      fileUrl: "http://evcdbwho.mil/flrtdddv",
-    },
-    answering: null,
-  },
-];
+import { useStudentStore } from "@/stores/student";
+import { onMounted, ref } from "vue";
+const homeworkUnFinishList = ref([]);
+const studentStore = useStudentStore();
 
-const homeworkInfo = ref<any>(null);
+const getHomeworkUnFinishList = async () => {
+  homeworkUnFinishList.value =
+    await studentStore.getStudentHomeworkUnFinished();
+};
 
-const updateVisible = ref(false);
-const updateHomework = (form: any) => {
-  updateVisible.value = true;
+onMounted(async () => {
+  getHomeworkUnFinishList();
+});
+const homeworkInfo = ref({});
+
+const commitVisible = ref(false);
+const commitHomework = (id: number) => {
+  commitVisible.value = true;
+  homeworkInfo.value.homeworkId = id;
+};
+const cancleCommitHomework = () => {
+  commitVisible.value = false;
+  homeworkInfo.value = {};
+};
+const doCommitHomework = async () => {
+  await studentStore.commitStudentHomework(homeworkInfo.value);
+  commitVisible.value = false;
+  homeworkInfo.value = {};
+  getHomeworkUnFinishList();
 };
 </script>
 
@@ -78,23 +35,59 @@ const updateHomework = (form: any) => {
   <div>
     <h1>未完成作业：</h1>
     <el-row :gutter="12">
-      <el-col :span="8" :key="form.id" v-for="form in data">
+      <el-col :span="8" :key="item.id" v-for="item in homeworkUnFinishList">
         <el-card shadow="hover" class="homework-card"
-          ><h4>{{ form.title }}</h4>
+          ><h4>{{ item.title }}</h4>
           <div>
             <div class="bottom">
-              <span class="type">作业序列号：{{ form.id }}</span>
-              <span class="type">课程名：{{ form.courseName }}</span>
-              <span class="type">任课老师：{{ form.teacherName }}</span>
-              <span class="type">学生：{{ form.studentName }}</span>
-              <span class="type">作业状态：{{ form.status }}</span>
-              <span class="type">作业分数：{{ form.score }}</span>
+              <span class="type">作业序列号：{{ item.id }}</span>
+              <span class="type">课程名：{{ item.courseName }}</span>
+              <span class="type">任课老师：{{ item.teacherName }}</span>
+              <span class="type">学生：{{ item.studentName }}</span>
+              <span class="type">作业状态：{{ item.status }}</span>
+              <span class="type">作业分数：{{ item.score }}</span>
             </div>
           </div>
-          <el-button text @click="updateHomework(form)">提交作业</el-button>
+          <el-button text @click="commitHomework(item.id)">提交作业</el-button>
         </el-card>
       </el-col>
     </el-row>
+    <el-dialog
+      style="display: flex; flex-direction: column"
+      v-model="commitVisible"
+      title="提交作业"
+      width="600"
+    >
+      <el-form
+        label-width="auto"
+        :model="homeworkInfo"
+        style="max-width: 600px"
+      >
+        <el-form-item label="文本答案">
+          <el-input
+            v-model="homeworkInfo.solution"
+            style="width: 240px"
+            :rows="2"
+            type="textarea"
+            placeholder="Please input"
+          />
+        </el-form-item>
+        <el-form-item label="附件">
+          <el-input v-model="homeworkInfo.fileSolutionUrl" type="file" />
+        </el-form-item>
+        <el-form-item label="疑问">
+          <el-input
+            v-model="homeworkInfo.question"
+            style="width: 240px"
+            :rows="2"
+            type="textarea"
+            placeholder="Please input"
+          />
+        </el-form-item>
+      </el-form>
+      <el-button @click="cancleCommitHomework">取消</el-button>
+      <el-button type="primary" @click="doCommitHomework">提交</el-button>
+    </el-dialog>
   </div>
 </template>
 

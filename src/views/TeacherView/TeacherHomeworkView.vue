@@ -1,63 +1,51 @@
 <script lang="ts" setup>
+import { useManagerStore } from "@/stores/manager";
+import { useTeacherStore } from "@/stores/teacher";
 import { Edit } from "@element-plus/icons-vue";
-import { ref } from "vue";
-const data = [
-  {
-    homeworkId: 10,
-    assignmentDate: 1709906581292,
-    dueDate: 1709663899000,
-    description: "刘哈哈刘哈哈刘哈哈",
-    title: "刘哈哈作业",
-    fileUrl: "http://evcdbwho.mil/flrtdddv",
-  },
-  {
-    homeworkId: 11,
-    assignmentDate: 1709906761118,
-    dueDate: 1709663899000,
-    description: "刘哈哈刘哈哈刘哈哈",
-    title: "刘哈哈作业",
-    fileUrl: "http://evcdbwho.mil/flrtdddv",
-  },
-  {
-    homeworkId: 12,
-    assignmentDate: 1709906787540,
-    dueDate: 1709663899000,
-    description: "刘哈哈刘哈哈刘哈哈未完成",
-    title: "刘哈哈作业",
-    fileUrl: "http://evcdbwho.mil/flrtdddv",
-  },
-  {
-    homeworkId: 13,
-    assignmentDate: 1709906811475,
-    dueDate: 1709663899000,
-    description: "刘哈哈刘哈哈刘哈哈已经批改",
-    title: "刘哈哈作业",
-    fileUrl: "http://evcdbwho.mil/flrtdddv",
-  },
-];
+import { onMounted, ref } from "vue";
 const editVisible = ref(false);
-const homeWorkForm = ref({
-  courseId: 0,
-  title: "",
-  description: "",
-  dueDate: "",
-  fileUrl: "",
+const homeWorkForm = ref({});
+const teacherStore = useTeacherStore();
+const managerStore = useManagerStore();
+const courseList = ref([]);
+const homeworkList = ref([]);
+
+const getTeacherHomework = async () => {
+  homeworkList.value = await teacherStore.getTeacherHomework();
+};
+
+onMounted(async () => {
+  getTeacherHomework();
+  courseList.value = await managerStore.getCourse();
 });
+
+const cancleCreateHomework = async () => {
+  editVisible.value = false;
+  homeWorkForm.value = {};
+};
+
+const doCreateHomework = async () => {
+  homeWorkForm.value.dueDate =
+    homeWorkForm.value.dueDate * 60 * 60 * 1000 + Date.now();
+  await teacherStore.createHomework(homeWorkForm.value);
+  editVisible.value = false;
+  getTeacherHomework();
+};
 </script>
 
 <template>
   <div>
     <h1>学生作业：</h1>
     <el-row :gutter="12">
-      <el-col :span="8" :key="form.homeworkId" v-for="form in data">
+      <el-col :span="8" :key="item.homeworkId" v-for="item in homeworkList">
         <el-card shadow="hover" class="homework-card"
-          ><h4>{{ form.title }}</h4>
+          ><h4>{{ item.title }}</h4>
           <div>
             <div class="bottom">
-              <span class="type">作业序列号：{{ form.homeworkId }}</span>
-              <span class="type">作业描述：{{ form.description }}</span>
-              <span class="type">发布时间：{{ form.dueDate }}</span>
-              <span class="type">截止时间：{{ form.assignmentDate }}</span>
+              <span class="type">作业序列号：{{ item.homeworkId }}</span>
+              <span class="type">作业描述：{{ item.description }}</span>
+              <span class="type">发布时间：{{ item.dueDate }}</span>
+              <span class="type">截止时间：{{ item.assignmentDate }}</span>
             </div>
           </div>
         </el-card>
@@ -73,24 +61,36 @@ const homeWorkForm = ref({
   />
   <el-dialog v-model="editVisible" title="发布作业" width="600">
     <el-form label-width="auto" :model="homeWorkForm" style="max-width: 600px">
-      <el-form-item label="课程id">
-        <el-input v-model="homeWorkForm.courseId" />
-      </el-form-item>
-      <el-form-item label="Activity title">
+      <el-form-item label="标题">
         <el-input v-model="homeWorkForm.title" />
       </el-form-item>
-      <el-form-item label="Activity dueDate">
-        <el-input v-model="homeWorkForm.dueDate" />
+      <el-form-item label="班级">
+        <el-select
+          v-model="homeWorkForm.courseId"
+          placeholder="Select"
+          size="large"
+          style="width: 240px"
+        >
+          <el-option
+            v-for="item in courseList"
+            :key="item.courseId"
+            :label="item.courseName"
+            :value="item.courseId"
+          />
+        </el-select>
       </el-form-item>
-      <el-form-item label="Activity description">
+      <el-form-item label="完成用时">
+        <el-input-number v-model="homeWorkForm.dueDate" :min="1" :max="120" />
+      </el-form-item>
+      <el-form-item label="作业描述">
         <el-input v-model="homeWorkForm.description" />
       </el-form-item>
-      <el-form-item label="Activity fileUrl">
-        <el-input v-model="homeWorkForm.fileUrl" />
+      <el-form-item label="附件">
+        <el-input v-model="homeWorkForm.fileUrl" type="file" />
       </el-form-item>
     </el-form>
-    <el-button>Default</el-button>
-    <el-button type="primary">Primary</el-button>
+    <el-button @="cancleCreateHomework">Default</el-button>
+    <el-button type="primary" @click="doCreateHomework">Primary</el-button>
   </el-dialog>
 </template>
 
